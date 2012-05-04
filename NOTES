@@ -43,3 +43,78 @@ I think both are important, as we have at least two audiences: those
 who don't want to have to manage their own content storage, and those
 that do.  #1 is a lot easier to implement, given the library support
 in AppEngine.  #2 shouldn't be too much harder.
+
+
+
+----------------------------------------------------------------------
+
+Here are the following OpenID providers:
+
+    http://openid.net/get-an-openid/
+
+
+Besides Google, a free and easy one to get is myOpenID:  https://www.myopenid.com/
+
+
+----------------------------------------------------------------------
+
+Shriram notes that kids may have difficulty getting an OpenID.
+
+The age limit is at least 13 years of age for places like LiveJournal.
+
+Discussion on COPPA and OpenID:  http://lists.openid.net/pipermail/openid-general/2008-April/013948.html
+
+
+The information we're collecting is not intended to be personal
+information, but all the same, we are serving a youth audience.  This
+means that we really do need parental consent.
+
+To comply, we need to follow:
+
+    http://www.coppa.org/comply.htm
+
+We need:
+
+   A privacy notice
+   Verifiable parental notice
+
+
+Examples of parental consent forms include:
+
+    http://www.sullivansline.com/TLine/coppaform.htm
+    http://www.neopets.com/coppa/consentform.phtml
+
+
+We are not going to disclose to third parties the content of the
+forms.  We may use that data to analyze the particular errors that
+students are making.
+
+
+----------------------------------------------------------------------
+
+We really will need to maintain a database of users for the purposes
+of following COPPA requirements for parental consent.  However, those
+parents should have OpenIDs themselves that we can use for identity.
+
+
+We have three classes of users.
+
+    1.  OpenID users.
+
+    2.  Children, connected to an OpenID-holding parent.
+
+    3.  OpenID parents.
+
+On registration, we allow the child to generate a username/password
+pair, but they also include the email of the parent that can sponsors
+their account.  At this point, the account is unverified, and we do
+not store any data until the account is verified.
+
+We then send an email to that account, which includes a reference to a
+parental consent form.  The parent must have an OpenID account.  Once
+they fill in the consent form, we associate the parental account with
+the child account.
+
+The parent must have explicit privileges to bulk-download the data
+that their children enter into the data repository, or delete it
+outright.
