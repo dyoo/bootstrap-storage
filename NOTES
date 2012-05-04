@@ -1,0 +1,45 @@
+Each data repository maintains, for each user, a set of 4-tuples of
+type (string * string * string * number), corresponding to (form-id,
+key-name, value, timestamp).
+
+The form-id acts as a namespacing mechanism.
+
+By default, a user can only get access to his or her own content, and
+should be able to perform the following operations:
+
+  * Ask what form-ids the data repository knows about.
+
+  * Given a form-id, tell all the keys-names.
+
+  * Given an form-id, provide a sequence of (key-name, value) tuples
+corresponding to the very last latest value per key.
+
+  * Given a form-id and key-name, provide the sequence of timestamped
+values ordered by descending time.
+
+  * Insert a new tuple into the repository.
+
+However, no one is allowed to delete or update an existing triple.  We
+want to be able to perform experiments like watch the complete history
+of a user's interactions.
+
+
+Certain privileged users should be allowed to bulk-read and bulk-write
+everyone's content.  This is to enable bulk loading and analytics.
+
+
+We should use OpenID so we don't have to deal with login management.
+
+
+We'd make the data repository webapps available for anyone to deploy.
+I am thinking of two implementations:
+
+  #1. A package for AppEngine such that the content is stored on
+Google servers.
+
+  #2. A more generic webapp package that stores its data in an SQL database.
+
+I think both are important, as we have at least two audiences: those
+who don't want to have to manage their own content storage, and those
+that do.  #1 is a lot easier to implement, given the library support
+in AppEngine.  #2 shouldn't be too much harder.
