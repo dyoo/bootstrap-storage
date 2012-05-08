@@ -47,10 +47,7 @@ Google servers.
 
 I think both are important, as we have at least two audiences: those
 who don't want to have to manage their own content storage, and those
-that do.  #1 is a lot easier to implement, given the library support
-in AppEngine.  #2 shouldn't be too much harder.
-
-
+that do.
 
 ----------------------------------------------------------------------
 
@@ -72,9 +69,9 @@ allow an OpenID-like mechanism for minors, though there is discussion:
 http://lists.openid.net/pipermail/openid-general/2008-April/013948.html
 
 
-However, we are managing data in the context of an afterschool
-program.  In this case, we get parental consent by proxy via the
-school.  Here's how COPPA interacts with schools:
+However, we are managing data in the context of a school program.  In
+this case, we get parental consent by proxy via the school.  Here's
+how COPPA interacts with schools:
 
     http://www.ftc.gov/privacy/coppafaqs.shtm#schools 
 
@@ -137,11 +134,13 @@ users in the database.
 
     6.  A Child using an account vouched by a Parent???
 
-I'm conflicted on 4 and 5.  I wanted to distingish between Parents and
+I'm conflicted on 5 and 6.  I wanted to distingish between Parents and
 Teachers because a Teacher belongs to a specific school, and that lets
-us use school name as another namespacing mechanism.  However, the
-distinction between Teachers and Parents is subtle, and makes login a
-little more complex.  Maybe it makes sense to collapse the concept.
+us use school name as another namespacing mechanism.  Also, in the
+case of a Parent, I wanted to present the parental consent form there
+alone.  However, the distinction between Teachers and Parents is
+subtle, and makes login a little more complex.  Maybe it makes sense
+to collapse the concept?
 
 
 Teachers should have an interface for adding new accounts.  They
