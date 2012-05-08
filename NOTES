@@ -1,3 +1,6 @@
+Data repository and operations
+
+
 Each data repository maintains, for each user, a set of 4-tuples of
 type (string * string * string * number), corresponding to (form-id,
 key-name, value, timestamp).
@@ -19,16 +22,19 @@ values ordered by descending time.
 
   * Insert a new tuple into the repository.
 
-However, no one is allowed to delete or update an existing triple.  We
-want to be able to perform experiments like watch the complete history
-of a user's interactions.
 
+We want to be able to perform experiments like watch the complete
+history of a user's interactions.  For normal users, there should be
+no way to delete or update an existing triple.
 
 Certain privileged users should be allowed to bulk-read and bulk-write
 everyone's content.  This is to enable bulk loading and analytics.
 
 
-We should use OpenID so we don't have to deal with login management.
+
+----------------------------------------------------------------------
+
+Deployment
 
 
 We'd make the data repository webapps available for anyone to deploy.
@@ -48,36 +54,62 @@ in AppEngine.  #2 shouldn't be too much harder.
 
 ----------------------------------------------------------------------
 
-Here are the following OpenID providers:
+User identity, minors, and COPPA
+
+
+The plan is to leverage OpenID as much as possible, so that we make it
+easy to get an account.  OpenID providers are readily available for
+adults:
 
     http://openid.net/get-an-openid/
 
+However, we have a problem: Shriram notes that kids may have
+difficulty getting an OpenID.
 
-Besides Google, a free and easy one to get is myOpenID:  https://www.myopenid.com/
-
-
-----------------------------------------------------------------------
-
-Shriram notes that kids may have difficulty getting an OpenID.
-
-The age limit is at least 13 years of age for places like LiveJournal.
-
-Discussion on COPPA and OpenID:  http://lists.openid.net/pipermail/openid-general/2008-April/013948.html
+The age limit in the US is at least 13 years of age for places like
+LiveJournal.  As of this writing, there is not yet a plan in place to
+allow an OpenID-like mechanism for minors, though there is discussion:
+http://lists.openid.net/pipermail/openid-general/2008-April/013948.html
 
 
-The information we're collecting is not intended to be personal
-information, but all the same, we are serving a youth audience.  This
-means that we really do need parental consent.
+However, we are managing data in the context of an afterschool
+program.  In this case, we get parental consent by proxy via the
+school.  Here's how COPPA interacts with schools:
 
-To comply, we need to follow:
+    http://www.ftc.gov/privacy/coppafaqs.shtm#schools 
+
+Teachers can be proxies for parents.  We would tell the school our
+data collection policy, and then it would be up to the school to get
+the necessary permission from parents.  This would satisfy COPPA
+requirements.
+
+
+One of the situations we've seen with WeScheme is the following: a
+teacher will use their account to log in on multiple machines.  So
+rather than fight against that, maybe the right thing to do is to go
+with that, and include a specific category of user for the teacher.
+
+The teacher can log in as a teacher role, and create their own user
+names and passwords for their students.  The teacher will have control
+over the data of their students.  A student, when logging in, would
+provide username and password, and perhaps school.  Teachers would
+have admin access on the data of their students.
+
+
+
+In the case of home-schooling, we would not automatically get a free
+pass on parental consent.  We are serving a youth audience.  This
+means that we really would need parental consent in cases where we
+don't have it implicitly through the school.
+
+To comply, we would need to follow:
 
     http://www.coppa.org/comply.htm
 
 We need:
 
-   A privacy notice
-   Verifiable parental notice
-
+   1. A privacy notice
+   2. Verifiable parental notice
 
 Examples of parental consent forms include:
 
@@ -85,36 +117,55 @@ Examples of parental consent forms include:
     http://www.neopets.com/coppa/consentform.phtml
 
 
-We are not going to disclose to third parties the content of the
-forms.  We may use that data to analyze the particular errors that
-students are making.
-
-
 ----------------------------------------------------------------------
 
-We really will need to maintain a database of users for the purposes
-of following COPPA requirements for parental consent.  However, those
-parents should have OpenIDs themselves that we can use for identity.
+User database and permissions
+
+Since we need to keep track of child and student logins, we really
+will need to maintain a database of users.  We need several classes of
+users in the database.
+
+    1.  Administrator
+
+    2.  A plain user with an OpenID
+   
+    3.  A Teacher with an OpenID
+ 
+    4.  A Child using an account created by a Teacher
+
+    5.  A Parent with an OpenID???
+
+    6.  A Child using an account vouched by a Parent???
+
+I'm conflicted on 4 and 5.  I wanted to distingish between Parents and
+Teachers because a Teacher belongs to a specific school, and that lets
+us use school name as another namespacing mechanism.  However, the
+distinction between Teachers and Parents is subtle, and makes login a
+little more complex.  Maybe it makes sense to collapse the concept.
 
 
-We have three classes of users.
+Teachers should have an interface for adding new accounts.  They
+should be able to view existing student account names and change
+passwords.
 
-    1.  OpenID users.
+    -- We should not store unencrypted passwords, ever.  Is this
+       really a good idea?  For kids, maybe, because we forget.  But
+       perhaps the ability to issue new passwords is enough.
 
-    2.  Children, connected to an OpenID-holding parent.
+    -- We can issue automatically generated a suggested password via
+       "correct horse staple battery", using the words of the General
+       Service List: http://jbauman.com/aboutgsl.html
+       (example: https://correcthorsebatterystaple.heroku.com/)
 
-    3.  OpenID parents.
+A plain user should not be able to delete content.
 
-On registration, we allow the child to generate a username/password
-pair, but they also include the email of the parent that can sponsors
-their account.  At this point, the account is unverified, and we do
-not store any data until the account is verified.
+A child should not be able to delete content.
 
-We then send an email to that account, which includes a reference to a
-parental consent form.  The parent must have an OpenID account.  Once
-they fill in the consent form, we associate the parental account with
-the child account.
+A teacher should be able to delete the content of their students.  Do
+we want some record that they've deleted data, though?
 
-The parent must have explicit privileges to bulk-download the data
-that their children enter into the data repository, or delete it
-outright.
+A plain user should be able to insert their own data.  They should be
+able to read their own data.
+
+An Administrator has unrestricted access to all data in a repository,
+and can change the user database.
