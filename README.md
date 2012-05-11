@@ -1,4 +1,0 @@
-bootstrap-storage
-=================
-
-bootstrap storage
